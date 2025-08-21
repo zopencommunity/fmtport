@@ -16,7 +16,7 @@ export ZOPEN_BUILD_LINE="STABLE"
 
 ## Required IF ZOPEN_BUILD_LINE='STABLE'
 export ZOPEN_STABLE_URL="https://github.com/fmtlib/fmt.git"  # Specify the stable build URL (either git or tarball)
-export ZOPEN_STABLE_DEPS="zoslib make grep cmake" # Specify the stable build dependencies.
+export ZOPEN_STABLE_DEPS="zoslib make grep cmake gawk" # Specify the stable build dependencies.
 
 ## Required IF ZOPEN_BUILD_LINE='DEV'
 export ZOPEN_DEV_URL=""   # Specify the dev build URL
@@ -49,7 +49,7 @@ export ZOPEN_SYSTEM_PREREQ=""
 ###
 
 #export ZOPEN_BOOTSTRAP="skip" ## Bootstrap program to run (defaults to './bootstrap')
-#export ZOPEN_CHECK="skip"     ## Check program to run (defaults to 'make')
+export ZOPEN_CHECK="zopen_check"     ## Check program to run (defaults to 'make')
 #export ZOPEN_CONFIGURE="skip" ## Configuration program to run (defaults to './configure')
 #export ZOPEN_INSTALL="skip"   ## Installation program to run (defaults to 'make')
 #export ZOPEN_MAKE="skip"      ## Build program to run (defaults to 'make')
@@ -60,17 +60,24 @@ export ZOPEN_SYSTEM_PREREQ=""
 ### Required user-supplied functions
 ###
 
+zopen_check()
+{
+  ZOSLIB_ERROR_COMPAT=1 _EDC_ADD_ERRNO2=0 make -C ../build test
+}
+
 zopen_check_results()
 {
   dir="$1"
   pfx="$2"
   chk="$1/$2_check.log"
 
-  # Echo the following information to gauge build health
-  echo "actualFailures:0"
-  echo "totalTests:1"
-  echo "expectedFailures:0"
-  echo "expectedTotalTests:1"
+  actualFailures=$(grep -E '^[[:space:]]*[0-9]+/[0-9]+[[:space:]]+Test[[:space:]]+#' $chk | awk '$(NF-2) ~ /\*\*\*Failed/ { count++ } END { print count+0 }')
+  actualPasses=$(grep -E '^[[:space:]]*[0-9]+/[0-9]+[[:space:]]+Test[[:space:]]+#' $chk | awk '$(NF-2) == "Passed" { count++ } END { print count+0 }')
+  totalTests=$(grep -E '^[[:space:]]*[0-9]+/[0-9]+[[:space:]]+Test[[:space:]]+#' $chk | wc -l)
+  echo "actualFailures:$actualFailures"
+  echo "totalTests:$totalTests"
+  echo "expectedFailures:4"
+  echo "expectedTotalTests:21"
 }
 
 zopen_get_version()
@@ -164,7 +171,7 @@ ZZ
 #export ZOPEN_EXTRA_LDFLAGS="" ## C,C++ linker flags to append to LDFLAGS (defaults to '')
 #export ZOPEN_EXTRA_LIBS="" ## C,C++ libraries to append to LIBS (defaults to '')
 #export ZOPEN_BOOTSTRAP_OPTS="" ## Options to pass to bootstrap program (defaults to '')
-#export ZOPEN_CHECK_MINIMAL="" ## Check program will not be passed CFLAGS, LDFLAGS, CPPFLAGS options but will get them from env vars.
+export ZOPEN_CHECK_MINIMAL="y" ## Check program will not be passed CFLAGS, LDFLAGS, CPPFLAGS options but will get them from env vars.
 #export ZOPEN_CHECK_OPTS="" ## Options to pass to check program (defaults to 'check')
 #export ZOPEN_CHECK_TIMEOUT="" ## Timeout limit in seconds for the check program (defaults to '12600' # 3.5 hours)
 #export ZOPEN_CLEAN_OPTS="" ## Options to pass to clean up  program (defaults to 'clean')
