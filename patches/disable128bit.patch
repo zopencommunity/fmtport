@@ -1,0 +1,13 @@
+diff --git a/include/fmt/base.h b/include/fmt/base.h
+index 87b3fd7..c504f55 100644
+--- a/include/fmt/base.h
++++ b/include/fmt/base.h
+@@ -402,7 +402,7 @@ FMT_NORETURN FMT_API void assert_fail(const char* file, int line,
+ #ifdef FMT_USE_INT128
+ // Use the provided definition.
+ #elif defined(__SIZEOF_INT128__) && !defined(__NVCC__) && \
+-    !(FMT_CLANG_VERSION && FMT_MSC_VERSION)
++    !(FMT_CLANG_VERSION && FMT_MSC_VERSION) && !defined(__MVS__)
+ #  define FMT_USE_INT128 1
+ using int128_opt = __int128_t;  // An optional native 128-bit integer.
+ using uint128_opt = __uint128_t;
