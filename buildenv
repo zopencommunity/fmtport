@@ -1,6 +1,6 @@
 # Update bump details accordingly. Use bump check to confirm.
 # bump: fmt-version /FMT_VERSION="(.*)"/ https://github.com/fmtlib/fmt.git|semver:*
-FMT_VERSION="11.2.0" # Specify a stable release
+FMT_VERSION="12.0.0" # Specify a stable release
 export ZOPEN_STABLE_TAG="${FMT_VERSION}"
 
 ###
